@@ -1,0 +1,8 @@
+checkpoints/
+results/
+test_results/
+datasets/
+*.pth
+*.npy
+.idea/
+.vscode/

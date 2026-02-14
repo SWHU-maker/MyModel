@@ -1,0 +1,118 @@
+2026-02-13 17:28:11 
+Setting: 96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1653_0
+MSE: 0.164536, MAE: 0.210950, RMSE: 0.405630
+--------------------------------------------------
+
+2026-02-13 17:57:40 
+Setting: 96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1653_1
+MSE: 0.162832, MAE: 0.209710, RMSE: 0.403524
+--------------------------------------------------
+
+2026-02-13 18:19:56 
+Setting: 96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1653_2
+MSE: 0.164126, MAE: 0.210767, RMSE: 0.405124
+--------------------------------------------------
+
+2026-02-13 18:56:32 
+Setting: 96_192_PatchMLP_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1828_0
+MSE: 0.215375, MAE: 0.255995, RMSE: 0.464085
+--------------------------------------------------
+
+2026-02-13 19:22:42 
+Setting: 96_336_PatchMLP_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1856_0
+MSE: 0.271906, MAE: 0.296024, RMSE: 0.521447
+--------------------------------------------------
+
+2026-02-13 19:56:30 
+Setting: 96_720_PatchMLP_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_1922_0
+MSE: 0.351308, MAE: 0.346679, RMSE: 0.592712
+--------------------------------------------------
+
+2026-02-13 20:40:52 
+Setting: 96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2026_0
+MSE: 0.168008, MAE: 0.214966, RMSE: 0.409887
+--------------------------------------------------
+
+2026-02-13 21:00:12 
+Setting: 96_192_PatchMLP_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2040_0
+MSE: 0.215409, MAE: 0.256045, RMSE: 0.464122
+--------------------------------------------------
+
+2026-02-13 21:25:35 
+Setting: 96_336_PatchMLP_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2100_0
+MSE: 0.271921, MAE: 0.296033, RMSE: 0.521461
+--------------------------------------------------
+
+2026-02-13 21:38:59 
+Setting: 96_720_PatchMLP_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2125_0
+MSE: 0.351260, MAE: 0.346637, RMSE: 0.592672
+--------------------------------------------------
+
+2026-02-13 23:13:51 （PatchMamba）
+Setting: 96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2302_0
+MSE: 0.164837, MAE: 0.209862, RMSE: 0.406001
+--------------------------------------------------
+
+2026-02-13 23:29:00 （PatchMamba）
+Setting: 96_192_PatchMLP_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2313_0
+MSE: 0.211646, MAE: 0.253720, RMSE: 0.460050
+--------------------------------------------------
+
+2026-02-13 23:41:23 （PatchMamba）
+Setting: 96_336_PatchMLP_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2329_0
+MSE: 0.270315, MAE: 0.296757, RMSE: 0.519918
+--------------------------------------------------
+
+2026-02-13 23:52:09 （PatchMamba）
+Setting: 96_720_PatchMLP_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_0213_2341_0
+MSE: 0.353903, MAE: 0.351583, RMSE: 0.594898
+--------------------------------------------------
+
+2026-02-14 00:58:53 （PatchMamba）
+Setting: weather_96_96_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_0055_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.164837, MAE: 0.209862, RMSE: 0.406001
+--------------------------------------------------
+
+2026-02-14 12:33:11 （PatchMamba）
+Setting: weather_96_96_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1224_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.165766, MAE: 0.214977, RMSE: 0.407143
+--------------------------------------------------
+
+2026-02-14 12:54:27 (RouterPatchMamba)
+Setting: weather_96_96_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1240_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.160819, MAE: 0.207672, RMSE: 0.401023
+--------------------------------------------------
+
+2026-02-14 13:09:16 (RouterPatchMamba)
+Setting: weather_96_192_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1254_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.205592, MAE: 0.249373, RMSE: 0.453422
+--------------------------------------------------
+
+2026-02-14 13:26:52 (RouterPatchMamba)
+Setting: weather_96_336_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1309_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.265758, MAE: 0.294755, RMSE: 0.515517
+--------------------------------------------------
+
+2026-02-14 13:40:59 (RouterPatchMamba)
+Setting: weather_96_720_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1326_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.343864, MAE: 0.346016, RMSE: 0.586399
+--------------------------------------------------
+
+2026-02-14 15:51:49 (BRouterPatchMamba)
+Setting: weather_96_96_BPatchMambaRouter_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1520_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.175229, MAE: 0.226049, RMSE: 0.418604
+--------------------------------------------------
+
+2026-02-14 16:09:35 (BRouterPatchMamba)
+Setting: weather_96_192_BPatchMambaRouter_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0214_1551_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.223032, MAE: 0.266859, RMSE: 0.472263
+--------------------------------------------------
+
