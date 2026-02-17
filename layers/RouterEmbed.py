@@ -45,18 +45,9 @@ class series_decomp(nn.Module):
         return res, moving_mean
 
 class PatchRouter(nn.Module):
-    """
-    修改后的路由：真正利用原始数据的【趋势性】、【周期性】和【趋势/周期比例】
-    """
-    def __init__(self, c_in, seq_len, num_path):
+    def __init__(self, c_in, seq_len, num_path=5): # 修改为 5
         super().__init__()
-        # 使用分解层处理原始数据
         self.decomp = series_decomp(kernel_size=25) 
-        
-        # 路由的特征输入：
-        # 1. 趋势项特征 (c_in * seq_len)
-        # 2. 周期项特征 (c_in * seq_len)
-        # 3. 趋势/周期比例特征 (c_in * seq_len)
         self.input_dim = c_in * seq_len * 3
         
         self.gate = nn.Sequential(
@@ -64,42 +55,40 @@ class PatchRouter(nn.Module):
             nn.GELU(),
             nn.Linear(256, num_path)
         )
-        
-        # 噪声层：用于训练时的路径探索
         self.w_noise = nn.Linear(self.input_dim, num_path)
 
     def forward(self, x):
-        # x: 原始数据 [B, V, L]
         B, V, L = x.shape
-        
-        # --- A. 提取数据性质 ---
-        # 1. 提取周期性(res)和趋势性(trend)
         seasonal, trend = self.decomp(x)
-        
-        # 2. 计算趋势/周期比例 (加入 eps 防止除零)
-        # 这里的 ratio 反映了数据的信噪比或波动特征
         ratio = trend / (seasonal + 1e-6)
         
-        # --- B. 构建路由特征向量 ---
-        # 将三个性质展平并拼接，作为决策依据
-        feat_trend = trend.reshape(B, -1)     # [B, V*L]
-        feat_seasonal = seasonal.reshape(B, -1) # [B, V*L]
-        feat_ratio = ratio.reshape(B, -1)     # [B, V*L]
-        
-        routing_features = torch.cat([feat_trend, feat_seasonal, feat_ratio], dim=-1) # [B, V*L*3]
+        feat_trend = trend.reshape(B, -1)
+        feat_seasonal = seasonal.reshape(B, -1)
+        feat_ratio = ratio.reshape(B, -1)
+        routing_features = torch.cat([feat_trend, feat_seasonal, feat_ratio], dim=-1)
 
-        # --- C. 计算路由权重 ---
         logits = self.gate(routing_features)
         
         if self.training:
-            # 引入噪声分量 (Noisy Gating)
             noise_logits = self.w_noise(routing_features)
             noise = torch.randn_like(logits) * F.softplus(noise_logits)
             logits = logits + noise
             
-        # 返回 Softmax 后的权重，决定 4 个 Patch Size 的占比
-        return F.softmax(logits, dim=-1) # [B, 4]
-
+        # --- 新增逻辑：只取前三个最大的权重 ---
+        # 1. 先计算原始权重
+        weights = F.softmax(logits, dim=-1) # [B, 5]
+        
+        # 2. 找到 Top-3 的索引
+        top_k_values, top_k_indices = torch.topk(weights, k=3, dim=-1)
+        
+        # 3. 构造掩码，将不在 Top-3 中的位置设为 0
+        mask = torch.zeros_like(weights).scatter_(1, top_k_indices, 1.0)
+        masked_weights = weights * mask
+        
+        # 4. 重新归一化（保证 3 个权重之和为 1）
+        final_weights = masked_weights / (masked_weights.sum(dim=-1, keepdim=True) + 1e-6)
+        
+        return final_weights
 
 # ----------------- 核心 Embedding 逻辑 -----------------
 
@@ -135,44 +124,37 @@ class EmbLayer(nn.Module):
 
 
 class RouterEmb(nn.Module):
-    """
-    带动态路由选择的 Embedding 层
-    """
-    def __init__(self, seq_len, d_model, c_in, patch_len=[16, 12, 8, 4]):
+    def __init__(self, seq_len, d_model, c_in, patch_len=[16, 12, 8, 6, 4]): # 增加一个长度
         super().__init__()
         patch_step = patch_len
         
-        # 4 个并行的多尺度专家
-        self.EmbLayer_1 = EmbLayer(patch_len[0], patch_step[0] // 2, seq_len, d_model)
-        self.EmbLayer_2 = EmbLayer(patch_len[1], patch_step[1] // 2, seq_len, d_model)
-        self.EmbLayer_3 = EmbLayer(patch_len[2], patch_step[2] // 2, seq_len, d_model)
-        self.EmbLayer_4 = EmbLayer(patch_len[3], patch_step[3] // 2, seq_len, d_model)
+        # 初始化 5 个专家
+        self.experts = nn.ModuleList([
+            EmbLayer(patch_len[i], patch_step[i] // 2, seq_len, d_model) 
+            for i in range(5)
+        ])
 
-        # 路由选择器：输入 c_in 以便处理原始数据
-        self.router = PatchRouter(c_in, seq_len, num_path=4)
+        # 路由选择器 num_path 设为 5
+        self.router = PatchRouter(c_in, seq_len, num_path=5)
         
         self.position_embedding = PositionalEmbedding(d_model=d_model)
         self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, x):
-        # x 为输入的原始数据 [B, V, L]
-        
-        # 1. 关键步骤：利用原始数据的趋势/周期/比例 计算路由权重
-        # weights 的大小为 [B, 4]
+        # 1. 获取 Top-3 筛选后的权重 [B, 5]
         weights = self.router(x)
         
-        # 2. 计算 4 种不同 Patch 大小的特征表达
-        s_x1 = self.EmbLayer_1(x) # [B, V, d_model]
-        s_x2 = self.EmbLayer_2(x)
-        s_x3 = self.EmbLayer_3(x)
-        s_x4 = self.EmbLayer_4(x)
+        # 2. 计算所有专家的输出
+        # 为了效率，可以只计算权重 > 0 的专家，但通常并行计算 5 个更简单
+        expert_outputs = [expert(x) for expert in self.experts] # 每个元素为 [B, V, d_model]
         
         # 3. 动态加权聚合
-        # 根据数据性质，动态决定使用哪种尺度的特征更多
-        out = s_x1 * weights[:, 0].view(-1, 1, 1) + \
-              s_x2 * weights[:, 1].view(-1, 1, 1) + \
-              s_x3 * weights[:, 2].view(-1, 1, 1) + \
-              s_x4 * weights[:, 3].view(-1, 1, 1)
+        # 将列表堆叠成 [B, 5, V, d_model]，将权重变为 [B, 5, 1, 1]
+        combined_out = torch.stack(expert_outputs, dim=1) 
+        weighted_out = combined_out * weights.view(-1, 5, 1, 1)
+        
+        # 对专家维度求和
+        out = weighted_out.sum(dim=1) # [B, V, d_model]
         
         # 4. 融合位置编码
         out = out + self.position_embedding(out)

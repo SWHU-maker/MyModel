@@ -3,8 +3,7 @@ import torch
 from model import PatchMLP
 from model import PatchMamba
 from model import PatchMambaRouter
-from model import BPatchMambaRouter
-
+from model import PatchMambaRouterAttention
 
 
 class Exp_Basic(object):
@@ -14,7 +13,8 @@ class Exp_Basic(object):
             'PatchMLP': PatchMLP,
             'PatchMamba': PatchMamba,
             'PatchMambaRouter': PatchMambaRouter,
-            'BPatchMambaRouter': BPatchMambaRouter
+            'PatchMambaRouterAttention': PatchMambaRouterAttention,
+
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)

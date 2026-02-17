@@ -82,38 +82,52 @@ class SimpleMambaBlock(nn.Module):
 
 class MambaEncoder(nn.Module):
     """
-    改进点：将原本的 MLP 替换为 Mamba 块。
-    Mamba 能够更好地处理序列中的动态变化，而 MLP 过于僵硬。
+    极简改进版：加入 Feature Gater 组件。
+    不改变 Mamba 主干，仅通过一个自适应门控来控制变量间交互的强度。
     """
     def __init__(self, d_model, enc_in):
         super().__init__()
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
 
-        # 创新点 1：使用 Mamba 提取序列特征
+        # 1. 序列建模路径 (你最满意的部分)
         self.mamba_layer = SimpleMambaBlock(d_model)
 
-        # 创新点 2：保留一个轻量级的特征交互层
+        # 2. 变量建模路径
         self.ff2 = nn.Sequential(
             nn.Linear(enc_in, enc_in),
             nn.GELU(),
             nn.Dropout(0.1)
         )
+        
+        # 3. 新增组件：特征门控 (Feature Gater)
+        # 它会根据当前特征动态生成一个 0-1 的权重，控制空间交互的比例
+        self.gate = nn.Sequential(
+            nn.Linear(enc_in, enc_in),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
         # x: [B, L, D]
-        # 路径 1: Mamba 路径 (捕捉复杂的选择性时序依赖)
+        
+        # --- 路径 1: 时间/序列建模 ---
         res = x
         y = self.mamba_layer(x)
         y = self.norm1(y + res)
 
-        # 路径 2: 维度交互 (处理变量间关系)
-        y_0 = y.permute(0, 2, 1)
-        y_1 = self.ff2(y_0)
-        y_1 = y_1.permute(0, 2, 1)
+        # --- 路径 2: 维度交互 (带门控的改进) ---
+        y_0 = y.permute(0, 2, 1) # [B, D, V]
         
-        # 创新点 3：门控融合 (类似 2025 年流行的 Gated Mamba)
-        dec_out = self.norm2(y_1 * y + x)
+        # 核心逻辑：利用 gate 支路对 ff2 的输出进行自适应筛选
+        y_ff = self.ff2(y_0)
+        y_gt = self.gate(y_0)
+        
+        # 门控融合：只有重要的变量关联信息会被保留
+        y_spatial = (y_ff * y_gt).permute(0, 2, 1)
+        
+        # --- 路径 3: 最终输出 ---
+        # 保持你喜欢的门控残差结构
+        dec_out = self.norm2(y_spatial * y + x)
         return dec_out
 
 

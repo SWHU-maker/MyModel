@@ -1,6 +1,6 @@
 
 seq_len=96
-model_name=BPatchMambaRouter
+model_name=PatchMambaRouter
 root_path_name=./datasets/
 data_path_name=weather.csv
 model_id_name=weather
