@@ -45,9 +45,11 @@ class series_decomp(nn.Module):
         return res, moving_mean
 
 class PatchRouter(nn.Module):
-    def __init__(self, c_in, seq_len, num_path=5): # 修改为 5
+    def __init__(self, c_in, seq_len, num_path=5): # 路径数改为 5
         super().__init__()
         self.decomp = series_decomp(kernel_size=25) 
+        
+        # 输入维度保持不变 (trend, seasonal, ratio)
         self.input_dim = c_in * seq_len * 3
         
         self.gate = nn.Sequential(
@@ -55,40 +57,33 @@ class PatchRouter(nn.Module):
             nn.GELU(),
             nn.Linear(256, num_path)
         )
+        
         self.w_noise = nn.Linear(self.input_dim, num_path)
 
     def forward(self, x):
         B, V, L = x.shape
+        
+        # 提取数据性质
         seasonal, trend = self.decomp(x)
         ratio = trend / (seasonal + 1e-6)
         
+        # 构建特征向量
         feat_trend = trend.reshape(B, -1)
         feat_seasonal = seasonal.reshape(B, -1)
         feat_ratio = ratio.reshape(B, -1)
         routing_features = torch.cat([feat_trend, feat_seasonal, feat_ratio], dim=-1)
 
+        # 计算路由 logits
         logits = self.gate(routing_features)
         
         if self.training:
+            # 训练时加入噪声增强泛化性
             noise_logits = self.w_noise(routing_features)
             noise = torch.randn_like(logits) * F.softplus(noise_logits)
             logits = logits + noise
             
-        # --- 新增逻辑：只取前三个最大的权重 ---
-        # 1. 先计算原始权重
-        weights = F.softmax(logits, dim=-1) # [B, 5]
-        
-        # 2. 找到 Top-3 的索引
-        top_k_values, top_k_indices = torch.topk(weights, k=3, dim=-1)
-        
-        # 3. 构造掩码，将不在 Top-3 中的位置设为 0
-        mask = torch.zeros_like(weights).scatter_(1, top_k_indices, 1.0)
-        masked_weights = weights * mask
-        
-        # 4. 重新归一化（保证 3 个权重之和为 1）
-        final_weights = masked_weights / (masked_weights.sum(dim=-1, keepdim=True) + 1e-6)
-        
-        return final_weights
+        # 直接返回 5 个 patch size 的概率分布
+        return F.softmax(logits, dim=-1) # [B, 5]
 
 # ----------------- 核心 Embedding 逻辑 -----------------
 
@@ -124,39 +119,38 @@ class EmbLayer(nn.Module):
 
 
 class RouterEmb(nn.Module):
-    def __init__(self, seq_len, d_model, c_in, patch_len=[16, 12, 8, 6, 4]): # 增加一个长度
+    def __init__(self, seq_len, d_model, c_in, patch_len=[16, 12, 8, 6, 4]):
         super().__init__()
-        patch_step = patch_len
+        # 这里的 patch_step 依然采用 patch_len 的一半作为重叠
+        patch_steps = [p // 2 for p in patch_len]
         
-        # 初始化 5 个专家
+        # 创新点：使用 ModuleList 管理 5 个不同尺度的专家
         self.experts = nn.ModuleList([
-            EmbLayer(patch_len[i], patch_step[i] // 2, seq_len, d_model) 
+            EmbLayer(patch_len[i], patch_steps[i], seq_len, d_model) 
             for i in range(5)
         ])
 
-        # 路由选择器 num_path 设为 5
+        # 路由选择器，对应 5 个路径
         self.router = PatchRouter(c_in, seq_len, num_path=5)
         
         self.position_embedding = PositionalEmbedding(d_model=d_model)
         self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, x):
-        # 1. 获取 Top-3 筛选后的权重 [B, 5]
+        # x: [B, V, L]
+        
+        # 1. 获取 5 个专家的权重 [B, 5]
         weights = self.router(x)
         
-        # 2. 计算所有专家的输出
-        # 为了效率，可以只计算权重 > 0 的专家，但通常并行计算 5 个更简单
-        expert_outputs = [expert(x) for expert in self.experts] # 每个元素为 [B, V, d_model]
+        # 2. 依次计算 5 个专家的输出并进行加权聚合
+        # 初始化输出张量
+        out = 0
+        for i, expert in enumerate(self.experts):
+            # 提取第 i 个专家的权重并变换维度为 [B, 1, 1] 以便广播
+            w = weights[:, i].view(-1, 1, 1)
+            out += w * expert(x)
         
-        # 3. 动态加权聚合
-        # 将列表堆叠成 [B, 5, V, d_model]，将权重变为 [B, 5, 1, 1]
-        combined_out = torch.stack(expert_outputs, dim=1) 
-        weighted_out = combined_out * weights.view(-1, 5, 1, 1)
-        
-        # 对专家维度求和
-        out = weighted_out.sum(dim=1) # [B, V, d_model]
-        
-        # 4. 融合位置编码
+        # 3. 融合位置编码与 Dropout
         out = out + self.position_embedding(out)
         
         return self.dropout(out)

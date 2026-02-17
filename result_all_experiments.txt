@@ -218,27 +218,51 @@ Parameters: Dropout: 0.1, BatchSize: 64
 MSE: 0.207435, MAE: 0.250611, RMSE: 0.455450
 --------------------------------------------------
 
-2026-02-17 03:19:35 
+2026-02-17 03:19:35 (PatchMambaRouter v1.1 6个patchsize选top4)
 Setting: weather_96_96_PatchMambaRouter_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_0244_0
 Parameters: Dropout: 0.1, BatchSize: 64
 MSE: 0.159137, MAE: 0.206615, RMSE: 0.398919
 --------------------------------------------------
 
-2026-02-17 03:56:21 
+2026-02-17 03:56:21 (PatchMambaRouter v1.1 6个patchsize选top4)
 Setting: weather_96_192_PatchMambaRouter_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_0319_0
 Parameters: Dropout: 0.1, BatchSize: 64
 MSE: 0.205187, MAE: 0.249199, RMSE: 0.452976
 --------------------------------------------------
 
-2026-02-17 04:21:51 
+2026-02-17 04:21:51 (PatchMambaRouter v1.1 6个patchsize选top4)
 Setting: weather_96_336_PatchMambaRouter_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_0356_0
 Parameters: Dropout: 0.1, BatchSize: 64
 MSE: 0.264845, MAE: 0.293372, RMSE: 0.514631
 --------------------------------------------------
 
-2026-02-17 04:44:59 
+2026-02-17 04:44:59 (PatchMambaRouter v1.1 6个patchsize选top4)
 Setting: weather_96_720_PatchMambaRouter_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_0421_0
 Parameters: Dropout: 0.1, BatchSize: 64
 MSE: 0.347481, MAE: 0.347142, RMSE: 0.589475
+--------------------------------------------------
+
+2026-02-17 10:10:08 (PatchMambaRouter v1.2 6个patchsize全用)
+Setting: weather_96_96_PatchMambaRouter_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_0935_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.159470, MAE: 0.206441, RMSE: 0.399337
+--------------------------------------------------
+
+2026-02-17 10:47:08 (PatchMambaRouter v1.2 6个patchsize全用)
+Setting: weather_96_192_PatchMambaRouter_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_1010_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.205911, MAE: 0.250079, RMSE: 0.453774
+--------------------------------------------------
+
+2026-02-17 11:08:08 (PatchMambaRouter v1.2 6个patchsize全用)
+Setting: weather_96_336_PatchMambaRouter_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_1047_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.264688, MAE: 0.293234, RMSE: 0.514478
+--------------------------------------------------
+
+2026-02-17 11:31:16 (PatchMambaRouter v1.1 6个patchsize全用)
+Setting: weather_96_720_PatchMambaRouter_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs64_0217_1108_0
+Parameters: Dropout: 0.1, BatchSize: 64
+MSE: 0.348297, MAE: 0.347279, RMSE: 0.590167
 --------------------------------------------------
 
