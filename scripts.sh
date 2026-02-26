@@ -1,6 +1,6 @@
 
 seq_len=96
-model_name=PatchMambaRouter
+model_name=PatchMambaRouterMoe
 root_path_name=./datasets/
 data_path_name=weather.csv
 model_id_name=weather
@@ -12,7 +12,8 @@ do
     python -u run.py \
       --random_seed $random_seed \
       --is_training 1 \
-      --batch_size 64 \
+      --batch_size 32 \
+      --dropout 0.1 \
       --root_path $root_path_name \
       --data_path $data_path_name \
       --model_id $model_id_name'_'$seq_len'_'$pred_len \

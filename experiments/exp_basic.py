@@ -4,6 +4,7 @@ from model import PatchMLP
 from model import PatchMamba
 from model import PatchMambaRouter
 from model import PatchMambaRouterAttention
+from model import PatchMambaRouterMoe
 
 
 class Exp_Basic(object):
@@ -14,6 +15,7 @@ class Exp_Basic(object):
             'PatchMamba': PatchMamba,
             'PatchMambaRouter': PatchMambaRouter,
             'PatchMambaRouterAttention': PatchMambaRouterAttention,
+            'PatchMambaRouterMoe': PatchMambaRouterMoe,
 
         }
         self.device = self._acquire_device()

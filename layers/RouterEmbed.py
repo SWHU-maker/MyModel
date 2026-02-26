@@ -118,8 +118,85 @@ class EmbLayer(nn.Module):
         return x
 
 
+
+# class CrossScaleFusion(nn.Module):
+#     def __init__(self, d_model, num_experts=5, num_heads=4):
+#         super().__init__()
+#         # 使用多头注意力，让 5 个尺度的 patch 互相观察
+#         self.layer_norm = nn.LayerNorm(d_model)
+#         self.attn = nn.MultiheadAttention(d_model, num_heads=num_heads, dropout=0.1)
+#         self.gate = nn.Sequential(
+#             nn.Linear(d_model, d_model),
+#             nn.Sigmoid()
+#         )
+
+#     def forward(self, expert_outputs, weights):
+#         """
+#         expert_outputs: List of [B, V, d_model] (长度为 5)
+#         weights: [B, 5] (Router 输出的权重)
+#         """
+#         # 1. 堆叠专家输出 -> [5, B*V, d_model]
+#         # 注意：Attention 通常处理 (Sequence_Len, Batch, Dim)
+#         B, V, D = expert_outputs[0].shape
+#         x = torch.stack(expert_outputs, dim=0) # [5, B, V, D]
+#         x = x.reshape(5, B * V, D) 
+        
+#         # 2. 跨尺度注意力计算
+#         # 每个尺度作为 sequence 的一个 token
+#         attn_out, _ = self.attn(x, x, x)
+#         x = x + attn_out # 残差连接
+#         x = self.layer_norm(x)
+        
+#         # 3. 结合 Router 权重的加权聚合
+#         # weights: [B, 5] -> [5, B, 1]
+#         w = weights.permute(1, 0).unsqueeze(-1) # [5, B, 1]
+#         w = w.repeat(1, 1, V).reshape(5, B * V, 1) # 扩展到 (5, B*V, 1)
+        
+#         # 最终融合：将 5 个尺度的特征按权重合并成 1 个
+#         out = (x * w).sum(dim=0) # [B*V, D]
+#         return out.reshape(B, V, D)
+
+
+# # --- 修改后的 RouterEmb ---
+# class RouterEmb(nn.Module):
+#     def __init__(self, seq_len, d_model, c_in, dropout=0.1, patch_len=[16, 12, 8, 6, 4]):
+#         super().__init__()
+#         patch_steps = [p // 2 for p in patch_len]
+        
+#         self.experts = nn.ModuleList([
+#             EmbLayer(patch_len[i], patch_steps[i], seq_len, d_model) 
+#             for i in range(5)
+#         ])
+
+#         self.router = PatchRouter(c_in, seq_len, num_path=5)
+        
+#         # 杀手锏组件：跨尺度融合
+#         self.fusion = CrossScaleFusion(d_model, num_experts=5)
+        
+#         self.position_embedding = PositionalEmbedding(d_model=d_model)
+#         self.dropout = nn.Dropout(p=dropout)
+
+#     def forward(self, x):
+#         # 1. 获取专家权重 [B, 5]
+#         weights = self.router(x)
+        
+#         # 2. 获取 5 个专家的原始输出
+#         expert_outs = []
+#         for expert in self.experts:
+#             expert_outs.append(expert(x)) # 每个元素是 [B, V, d_model]
+        
+#         # 3. 使用 Cross-Scale Attention 进行融合
+#         # 这取代了原来的 out += w * expert(x)
+#         out = self.fusion(expert_outs, weights)
+        
+#         # 4. 融合位置编码与 Dropout
+#         out = out + self.position_embedding(out)
+#         return self.dropout(out)
+
+
+
 class RouterEmb(nn.Module):
-    def __init__(self, seq_len, d_model, c_in, patch_len=[16, 12, 8, 6, 4]):
+    def __init__(self, seq_len, d_model, c_in, dropout=0.1 ,patch_len=[16, 12, 8, 6, 4]):
         super().__init__()
         # 这里的 patch_step 依然采用 patch_len 的一半作为重叠
         patch_steps = [p // 2 for p in patch_len]
@@ -134,7 +211,7 @@ class RouterEmb(nn.Module):
         self.router = PatchRouter(c_in, seq_len, num_path=5)
         
         self.position_embedding = PositionalEmbedding(d_model=d_model)
-        self.dropout = nn.Dropout(p=0.1)
+        self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x):
         # x: [B, V, L]
