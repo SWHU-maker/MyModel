@@ -680,3 +680,9 @@ Parameters: Dropout: 0.1, BatchSize: 32
 MSE: 0.348586, MAE: 0.345696, RMSE: 0.590412
 --------------------------------------------------
 
+2026-03-03 06:00:43 
+Setting: weather_96_96_PatchMLP_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs32_0303_0557_0
+Parameters: Dropout: 0.1, BatchSize: 32
+MSE: 0.165993, MAE: 0.212618, RMSE: 0.407423
+--------------------------------------------------
+
