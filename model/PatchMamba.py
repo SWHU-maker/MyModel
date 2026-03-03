@@ -5,7 +5,7 @@ import numpy as np
 from layers.Embed import Emb
 
 # 引入 mamba-ssm 库
-# from mamba_ssm import Mamba
+from mamba_ssm import Mamba
 
 class moving_avg(nn.Module):
     """

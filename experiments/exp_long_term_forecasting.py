@@ -214,51 +214,51 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 
                 
                 
-                # --- 捕获最后一个 batch 的前 5 个特征并展示完整升维长度 ---
-                if i == len(test_loader) - 1:
-                    # 确定要可视化的特征数（最多 5 个）
-                    num_features = min(5, batch_x.shape[-1])
+                # # --- 捕获最后一个 batch 的前 5 个特征并展示完整升维长度 ---
+                # if i == len(test_loader) - 1:
+                #     # 确定要可视化的特征数（最多 5 个）
+                #     num_features = min(5, batch_x.shape[-1])
                     
-                    # 数据预处理（与模型内部 forecast 逻辑对齐）
-                    x_enc = batch_x.float().to(self.device)
-                    if self.model.use_norm:
-                        means = x_enc.mean(1, keepdim=True).detach()
-                        x_enc_temp = x_enc - means
-                        stdev = torch.sqrt(torch.var(x_enc_temp, dim=1, keepdim=True, unbiased=False) + 1e-5)
-                        x_enc_temp /= stdev
-                    else:
-                        x_enc_temp = x_enc
+                #     # 数据预处理（与模型内部 forecast 逻辑对齐）
+                #     x_enc = batch_x.float().to(self.device)
+                #     if self.model.use_norm:
+                #         means = x_enc.mean(1, keepdim=True).detach()
+                #         x_enc_temp = x_enc - means
+                #         stdev = torch.sqrt(torch.var(x_enc_temp, dim=1, keepdim=True, unbiased=False) + 1e-5)
+                #         x_enc_temp /= stdev
+                #     else:
+                #         x_enc_temp = x_enc
                     
-                    # 获取升维（Embedding）后的数据 [B, D, d_model]
-                    x_emb_in = x_enc_temp.permute(0, 2, 1) # [B, D, L]
-                    embedded_data = self.model.emb(x_emb_in) # [B, D, d_model]
+                #     # 获取升维（Embedding）后的数据 [B, D, d_model]
+                #     x_emb_in = x_enc_temp.permute(0, 2, 1) # [B, D, L]
+                #     embedded_data = self.model.emb(x_emb_in) # [B, D, d_model]
 
-                    # 循环处理每个特征列
-                    for j in range(num_features):
-                        # 1. 原始序列数据 [L]
-                        raw_feat = batch_x[0, :, j].detach().cpu().numpy() 
+                #     # 循环处理每个特征列
+                #     for j in range(num_features):
+                #         # 1. 原始序列数据 [L]
+                #         raw_feat = batch_x[0, :, j].detach().cpu().numpy() 
                         
-                        # 2. 全量升维数据 [d_model] 
-                        exp_feat_full = embedded_data[0, j, :].detach().cpu().numpy()
+                #         # 2. 全量升维数据 [d_model] 
+                #         exp_feat_full = embedded_data[0, j, :].detach().cpu().numpy()
 
-                        # 绘图 A：原始序列 (长度 L)
-                        plt.figure(figsize=(10, 4))
-                        plt.plot(raw_feat, color='blue', label=f'Original Feature {j}')
-                        plt.title(f"Feature {j}: Original (Length: {len(raw_feat)})")
-                        plt.legend()
-                        plt.savefig(os.path.join(folder_path, f"visual_feat{j}_original.png"))
-                        plt.close()
+                #         # 绘图 A：原始序列 (长度 L)
+                #         plt.figure(figsize=(10, 4))
+                #         plt.plot(raw_feat, color='blue', label=f'Original Feature {j}')
+                #         plt.title(f"Feature {j}: Original (Length: {len(raw_feat)})")
+                #         plt.legend()
+                #         plt.savefig(os.path.join(folder_path, f"visual_feat{j}_original.png"))
+                #         plt.close()
 
-                        # 绘图 B：完整升维后的序列 (长度 d_model)
-                        plt.figure(figsize=(15, 4)) # 增加宽度以便看清较长的序列
-                        plt.plot(exp_feat_full, color='red', label=f'Embedded Full (d_model)')
-                        plt.title(f"Feature {j}: Full Expanded Latent (Length: {len(exp_feat_full)})")
-                        plt.legend()
-                        plt.savefig(os.path.join(folder_path, f"visual_feat{j}_expanded_full.png"))
-                        plt.close()
+                #         # 绘图 B：完整升维后的序列 (长度 d_model)
+                #         plt.figure(figsize=(15, 4)) # 增加宽度以便看清较长的序列
+                #         plt.plot(exp_feat_full, color='red', label=f'Embedded Full (d_model)')
+                #         plt.title(f"Feature {j}: Full Expanded Latent (Length: {len(exp_feat_full)})")
+                #         plt.legend()
+                #         plt.savefig(os.path.join(folder_path, f"visual_feat{j}_expanded_full.png"))
+                #         plt.close()
 
-                    print(f"Full length visualizations for {num_features} features saved in {folder_path}")
-                # ------------------------------------------------------------------------------------------------------
+                #     print(f"Full length visualizations for {num_features} features saved in {folder_path}")
+                # # ------------------------------------------------------------------------------------------------------
                 
                 
                 
