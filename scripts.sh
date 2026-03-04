@@ -12,8 +12,8 @@ do
     python -u run.py \
       --random_seed $random_seed \
       --is_training 1 \
-      --batch_size 32 \
-      --dropout 0.1 \
+      --batch_size 128 \
+      --dropout 0.2 \
       --root_path $root_path_name \
       --data_path $data_path_name \
       --model_id $model_id_name'_'$seq_len'_'$pred_len \
@@ -22,7 +22,10 @@ do
       --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 21
+      --enc_in 21 \
+      --use_multi_gpu \
+      --devices '0,1' \
+      
 done
 
 
