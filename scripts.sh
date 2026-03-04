@@ -23,8 +23,8 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 21 \
-      --use_multi_gpu \
-      --devices '0,1' \
+      # --use_multi_gpu \
+      # --devices '0,1' \
       
 done
 
