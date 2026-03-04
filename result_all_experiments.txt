@@ -968,3 +968,33 @@ Parameters: Dropout: 0.1, BatchSize: 32
 MSE: 0.345107, MAE: 0.346475, RMSE: 0.587458
 --------------------------------------------------
 
+2026-03-04 17:27:11 
+Setting: weather_96_96_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.1_bs32_0304_1723_0
+Parameters: Dropout: 0.1, BatchSize: 32
+MSE: 0.163363, MAE: 0.211442, RMSE: 0.404182
+--------------------------------------------------
+
+2026-03-04 17:37:24 
+Setting: weather_96_96_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.2_bs128_0304_1730_0
+Parameters: Dropout: 0.2, BatchSize: 128
+MSE: 0.156794, MAE: 0.205525, RMSE: 0.395972
+--------------------------------------------------
+
+2026-03-04 17:43:25 
+Setting: weather_96_192_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.2_bs128_0304_1737_0
+Parameters: Dropout: 0.2, BatchSize: 128
+MSE: 0.205943, MAE: 0.250706, RMSE: 0.453809
+--------------------------------------------------
+
+2026-03-04 17:48:50 
+Setting: weather_96_336_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.2_bs128_0304_1743_0
+Parameters: Dropout: 0.2, BatchSize: 128
+MSE: 0.263685, MAE: 0.293230, RMSE: 0.513503
+--------------------------------------------------
+
+2026-03-04 17:54:49 
+Setting: weather_96_720_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.2_bs128_0304_1748_0
+Parameters: Dropout: 0.2, BatchSize: 128
+MSE: 0.345697, MAE: 0.348162, RMSE: 0.587960
+--------------------------------------------------
+
