@@ -1,10 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
-from layers.Embed import Emb
-
-# 引入 mamba-ssm 库
+from layers.Embed import Emb, BiMambaBlock
 from mamba_ssm import Mamba
 
 class moving_avg(nn.Module):
@@ -40,6 +36,53 @@ class series_decomp(nn.Module):
         return res, moving_mean
 
 
+class Encoder(nn.Module):
+    def __init__(self, d_model, enc_in):
+        super().__init__()
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+
+        # 创新点集成：基于 ICLR 2025 SOR-Mamba
+        # 1. Channel Mixing: 使用 BiMambaBlock 消除变量顺序偏差
+        # 2. d_conv=1: 移除局部卷积，避免对无序变量进行局部平滑
+        self.channel_mixer = BiMambaBlock(
+            d_model=d_model, 
+            d_state=16,      
+            d_conv=1,        
+            expand=2,        
+        )
+
+        # Time Mixing: 使用标准 Mamba 捕捉时间序列依赖
+        # 这里处理的是时间/特征维度，保留 d_conv=4 以捕捉局部时序模式
+        self.time_mixer = Mamba(
+            d_model=enc_in,  
+            d_state=16,
+            d_conv=4,
+            expand=2,
+        )
+
+    def forward(self, x):
+        # x shape: [B, enc_in, d_model]
+        # enc_in 是变量数，d_model 是特征维度
+        
+        # 1. Channel Mixing (在 enc_in 维度上扫描)
+        y_0 = self.channel_mixer(x)
+        y_0 = y_0 + x
+        y_0 = self.norm1(y_0)
+        
+        # 2. Time/Feature Mixing
+        # 转置以处理 d_model 维度 (如果 d_model 代表时间特征)
+        y_1 = y_0.permute(0, 2, 1) # [B, d_model, enc_in]
+        y_1 = self.time_mixer(y_1)
+        y_1 = y_1.permute(0, 2, 1) # [B, enc_in, d_model]
+        
+        # 残差连接
+        y_2 = y_1 * y_0 + x
+        y_2 = self.norm1(y_2)
+
+        return y_2
+
+
 class Model(nn.Module):
     def __init__(self, configs):
         super(Model, self).__init__()
@@ -51,6 +94,7 @@ class Model(nn.Module):
         self.decompsition = series_decomp(13)
         # Embedding
         self.emb = Emb(configs.seq_len, configs.d_model)
+        
         self.seasonal_layers = nn.ModuleList([
             Encoder(configs.d_model, configs.enc_in)
             for i in range(configs.e_layers)
@@ -64,13 +108,16 @@ class Model(nn.Module):
 
     def forecast(self, x_enc):
         if self.use_norm:
-            # Normalization from Non-stationary Transformer
+            # Normalization
             means = x_enc.mean(1, keepdim=True).detach()
             x_enc = x_enc - means
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
             x_enc /= stdev
-        x = x_enc.permute(0, 2, 1)
-        x = self.emb(x)
+            
+        x = x_enc.permute(0, 2, 1) # [B, V, L]
+        
+        # Embedding 层现在包含 BiMamba 增强
+        x = self.emb(x) # [B, V, d_model]
 
         seasonal_init, trend_init = self.decompsition(x)
 
@@ -82,8 +129,9 @@ class Model(nn.Module):
         x = seasonal_init + trend_init
         dec_out = self.projector(x)
         dec_out = dec_out.permute(0, 2, 1)
+        
         if self.use_norm:
-            # De-Normalization from Non-stationary Transformer
+            # De-Normalization
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
@@ -92,46 +140,3 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         dec_out = self.forecast(x_enc)
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]
-
-
-# ================= 修改的部分在这里 =================
-class Encoder(nn.Module):
-    def __init__(self, d_model, enc_in):
-        super().__init__()
-        self.norm1 = nn.LayerNorm(d_model)
-        self.norm2 = nn.LayerNorm(d_model)
-
-        # 替换原有的 ff1 (Linear + GELU + Dropout)
-        # Mamba1 处理输入 [B, enc_in, d_model]，将 enc_in 作为序列长度，d_model 作为特征维度
-        self.mamba1 = Mamba(
-            d_model=d_model, # 模型特征维度
-            d_state=16,      # SSM 状态扩展因子 (默认 16)
-            d_conv=4,        # 局部卷积核大小 (默认 4)
-            expand=2,        # Block 扩展因子 (原版 Mamba 默认 2)
-        )
-
-        # 替换原有的 ff2 (Linear + GELU + Dropout)
-        # Mamba2 处理输入 [B, d_model, enc_in]，将 d_model 作为序列长度，enc_in 作为特征维度
-        self.mamba2 = Mamba(
-            d_model=enc_in,  # 此时映射的特征维度是 enc_in
-            d_state=16,
-            d_conv=4,
-            expand=2,
-        )
-
-    def forward(self, x):
-        # x shape: [B, enc_in, d_model]
-        y_0 = self.mamba1(x)
-        y_0 = y_0 + x
-        y_0 = self.norm1(y_0)
-        
-        # 经过转置，准备处理时间特征维度
-        y_1 = y_0.permute(0, 2, 1) # shape: [B, d_model, enc_in]
-        y_1 = self.mamba2(y_1)
-        y_1 = y_1.permute(0, 2, 1) # 转置回: [B, enc_in, d_model]
-        
-        # 保留原本的交互逻辑和残差连接
-        y_2 = y_1 * y_0 + x
-        y_2 = self.norm1(y_2)
-
-        return y_2

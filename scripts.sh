@@ -1,4 +1,4 @@
-
+export CUDA_VISIBLE_DEVICES=0
 seq_len=96
 model_name=PatchMamba
 root_path_name=./datasets/
@@ -12,7 +12,7 @@ do
     python -u run.py \
       --random_seed $random_seed \
       --is_training 1 \
-      --batch_size 128 \
+      --batch_size 64 \
       --dropout 0.2 \
       --root_path $root_path_name \
       --data_path $data_path_name \
@@ -23,9 +23,8 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 21 \
-      --use_multi_gpu \
-      --devices '0,1' \
+      --gpu 0 \
+    #   --use_multi_gpu \
+    #   --devices '0,1,2,3' \
       
 done
-
-

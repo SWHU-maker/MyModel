@@ -1,6 +1,31 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from mamba_ssm import Mamba
+
+class BiMambaBlock(nn.Module):
+    """
+    基于 ICLR 2025 SOR-Mamba 的双向 Mamba 模块
+    通过双向扫描消除序列顺序偏差，特别适用于 Channel Mixing
+    """
+    def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
+        super().__init__()
+        # 正向 Mamba
+        self.mamba_f = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
+        # 反向 Mamba
+        self.mamba_b = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
+
+    def forward(self, x):
+        # x: [B, L, D]
+        y_f = self.mamba_f(x)
+        
+        # Backward pass: 翻转序列 -> Mamba -> 翻转回来
+        x_b = torch.flip(x, dims=[1])
+        y_b = self.mamba_b(x_b)
+        y_b = torch.flip(y_b, dims=[1])
+        
+        # 融合双向特征
+        return y_f + y_b
 
 class EmbLayer(nn.Module):
     def __init__(self, patch_len, patch_step, seq_len, d_model):
@@ -8,7 +33,7 @@ class EmbLayer(nn.Module):
         self.patch_len = patch_len
         self.patch_step = patch_step
 
-        # 创新：引入前后 Padding 保证 Patch 能完全 Cover 序列的边界信息
+        # 引入前后 Padding 保证 Patch 能完全 Cover 序列的边界信息
         self.pad_left = patch_len // 2
         self.pad_right = patch_len - self.pad_left
         padded_seq_len = seq_len + self.pad_left + self.pad_right
@@ -21,7 +46,7 @@ class EmbLayer(nn.Module):
         
         self.ff = nn.Sequential(
             nn.Linear(patch_len, self.d_model_inner),
-            nn.GELU()  # 引入 GELU 激活增强特征非线性
+            nn.GELU()
         )
         self.flatten = nn.Flatten(start_dim=-2)
 
@@ -53,14 +78,13 @@ class Emb(nn.Module):
         self.k = min(k, self.num_experts) 
         self.noisy_gating = noisy_gating  
 
-        # 实例化 6 个 Expert 分支
+        # 实例化专家分支
         self.EmbLayers = nn.ModuleList([
             EmbLayer(patch_len[i], patch_step[i] // 2, seq_len, d_model) 
             for i in range(self.num_experts)
         ])
 
-        # 创新：时频域联合路由网络 (Time-Frequency Routing Gate)
-        # 频域 rfft 后的长度为 seq_len // 2 + 1
+        # 时频域联合路由网络
         freq_len = seq_len // 2 + 1
         routing_dim = seq_len + freq_len
         
@@ -70,15 +94,16 @@ class Emb(nn.Module):
             nn.Linear(128, self.num_experts)
         )
         self.w_noise = nn.Linear(routing_dim, self.num_experts)
+        
+        # 创新集成：使用 BiMambaBlock 处理变量间的全局依赖
+        # 这里处理的是变量维度 V，由于变量无序，使用 BiMamba + d_conv=1 是最佳实践
+        self.variable_mixer = BiMambaBlock(d_model, d_conv=1)
 
     def noisy_top_k_gating(self, x, train, noise_epsilon=1e-2):
-        """
-        利用时域和频域的双重视角来给 6 个尺度打分
-        """
-        # 提取频域特征 (振幅) -> [B, V, seq_len // 2 + 1]
+        # 提取频域特征
         x_freq = torch.abs(torch.fft.rfft(x, dim=-1))
         
-        # 拼接时域和频域特征 -> [B, V, seq_len + freq_len]
+        # 拼接时域和频域特征
         routing_features = torch.cat([x, x_freq], dim=-1)
         
         clean_logits = self.w_gate(routing_features)
@@ -99,15 +124,20 @@ class Emb(nn.Module):
         return gates
 
     def forward(self, x):
+        # x: [B, V, L]
         gates = self.noisy_top_k_gating(x, self.training)
 
         # 获取所有尺度的表征
         expert_outputs = [layer(x) for layer in self.EmbLayers]
-        
-        # 堆叠起来，expert_outputs.shape: [B, V, 6, d_model]
-        expert_outputs = torch.stack(expert_outputs, dim=-2)
+        expert_outputs = torch.stack(expert_outputs, dim=-2) # [B, V, Experts, d_model]
 
-        gates = gates.unsqueeze(-1)  # [B, V, 6, 1]
+        gates = gates.unsqueeze(-1)  # [B, V, Experts, 1]
+        
+        # 加权融合
         s_out = (expert_outputs * gates).sum(dim=-2)  # [B, V, d_model]
+        
+        # 通过 BiMamba 增强变量间的交互
+        # 输入形状 [B, V, d_model]，Mamba 将在 V 维度上扫描
+        s_out = self.variable_mixer(s_out)
 
         return s_out
