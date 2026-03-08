@@ -21,7 +21,7 @@ class EmbLayer(nn.Module):
         
         self.ff = nn.Sequential(
             nn.Linear(patch_len, self.d_model_inner),
-            nn.GELU()
+            nn.GELU()  # 引入 GELU 激活增强特征非线性
         )
         self.flatten = nn.Flatten(start_dim=-2)
 

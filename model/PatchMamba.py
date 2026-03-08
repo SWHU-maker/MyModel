@@ -4,12 +4,14 @@ from layers.Embed import Emb
 from mamba_ssm import Mamba
 
 # ==========================================
-# 核心组件：BiMambaBlock (IClR 2025 SOR-Mamba)
+# 核心组件：Adaptive BiMambaBlock
+# 改进点：引入通道注意力机制，动态加权双向特征
 # ==========================================
 class BiMambaBlock(nn.Module):
     """
-    双向 Mamba 模块
-    通过正向和反向扫描，消除序列(特别是变量Channel)的顺序偏差
+    自适应双向 Mamba 模块
+    1. 双向扫描：消除 Channel 顺序偏差
+    2. 通道注意力：动态融合正向和反向特征，不再是简单的相加
     """
     def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
         super().__init__()
@@ -17,6 +19,13 @@ class BiMambaBlock(nn.Module):
         self.mamba_f = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
         # Backward
         self.mamba_b = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
+        
+        # 改进：引入门控融合机制，而不是简单的相加
+        self.gate = nn.Sequential(
+            nn.Linear(d_model * 2, d_model),
+            nn.Sigmoid()
+        )
+        self.out_proj = nn.Linear(d_model, d_model)
 
     def forward(self, x):
         # x: [B, L, D]
@@ -27,7 +36,15 @@ class BiMambaBlock(nn.Module):
         y_b = self.mamba_b(x_b)
         y_b = torch.flip(y_b, dims=[1])
         
-        return y_f + y_b
+        # 改进：动态融合
+        # 拼接双向特征
+        combined = torch.cat([y_f, y_b], dim=-1) # [B, L, 2*D]
+        z = self.gate(combined) # [B, L, D] 融合系数
+        
+        # 加权融合：z * y_f + (1-z) * y_b
+        y = z * y_f + (1 - z) * y_b
+        
+        return self.out_proj(y)
 
 
 class moving_avg(nn.Module):
@@ -61,8 +78,8 @@ class Encoder(nn.Module):
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
 
-        # 1. Channel Mixing (变量间交互) -> 使用 BiMamba + d_conv=1
-        # 消除变量顺序偏差，移除局部卷积偏置
+        # 1. Channel Mixing (变量间交互)
+        # 使用 Adaptive BiMamba，引入门控机制提升融合效果
         self.channel_mixer = BiMambaBlock(
             d_model=d_model, 
             d_state=16,      
@@ -70,8 +87,7 @@ class Encoder(nn.Module):
             expand=2,        
         )
 
-        # 2. Time Mixing (时间步交互) -> 使用标准 Mamba
-        # 保持 d_conv=4 以捕捉局部时序模式
+        # 2. Time Mixing (时间步交互)
         self.time_mixer = Mamba(
             d_model=enc_in,  
             d_state=16,
@@ -82,15 +98,15 @@ class Encoder(nn.Module):
     def forward(self, x):
         # x: [B, enc_in, d_model]
         
-        # Channel Mixing (Bi-Directional)
+        # Channel Mixing
         y_0 = self.channel_mixer(x)
         y_0 = y_0 + x
         y_0 = self.norm1(y_0)
         
         # Time Mixing
-        y_1 = y_0.permute(0, 2, 1) # [B, d_model, enc_in]
+        y_1 = y_0.permute(0, 2, 1) 
         y_1 = self.time_mixer(y_1)
-        y_1 = y_1.permute(0, 2, 1) # [B, enc_in, d_model]
+        y_1 = y_1.permute(0, 2, 1)
         
         y_2 = y_1 * y_0 + x
         y_2 = self.norm1(y_2)
@@ -108,16 +124,15 @@ class Model(nn.Module):
 
         self.decompsition = series_decomp(13)
         
-        # Embedding 层
+        # Embedding
         self.emb = Emb(configs.seq_len, configs.d_model)
         
-        # [关键修复]：在 Embedding 之后、Encoder 之前增加一层全局变量交互
-        # 这对应之前 Embed.py 内部被移除的 variable_mixer
-        # 它可以作为 "Pre-Encoder" 层，进一步提取 Patch 后的多变量关联特征
+        # 全局变量交互层 (Pre-Encoder)
+        # 同样使用 Adaptive BiMamba
         self.pre_encoder_mixer = BiMambaBlock(
             d_model=configs.d_model,
             d_state=16,
-            d_conv=1, # 同样针对变量维度，移除卷积
+            d_conv=1,
             expand=2
         )
         
@@ -142,8 +157,7 @@ class Model(nn.Module):
         x = x_enc.permute(0, 2, 1) # [B, V, L]
         x = self.emb(x)            # [B, V, d_model]
 
-        # [关键修复]：显式调用全局变量交互层
-        # 输入形状 [B, V, d_model]，在 V 维度上进行双向扫描
+        # 显式调用全局变量交互
         x = self.pre_encoder_mixer(x)
 
         seasonal_init, trend_init = self.decompsition(x)
