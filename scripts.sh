@@ -8,9 +8,9 @@ data_name=custom
 random_seed=2024
 
 # 超参数搜索空间
-pred_lens="96 192 336 720"
-batch_sizes="64 128"
-dropouts="0.1"
+pred_lens="192 336 720"
+batch_sizes="64"
+dropouts="0"
 
 for bs in $batch_sizes
 do
