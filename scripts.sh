@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=2
 seq_len=96
 model_name=PatchMamba
 root_path_name=./datasets/
@@ -9,8 +9,8 @@ random_seed=2024
 
 # 超参数搜索空间
 pred_lens="96 192 336 720"
-batch_sizes="32 64 128"
-dropouts="0.05 0.1 0.2"
+batch_sizes="64"
+dropouts="0.1"
 
 for bs in $batch_sizes
 do

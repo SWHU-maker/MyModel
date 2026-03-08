@@ -1,31 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mamba_ssm import Mamba
-
-class BiMambaBlock(nn.Module):
-    """
-    基于 ICLR 2025 SOR-Mamba 的双向 Mamba 模块
-    通过双向扫描消除序列顺序偏差，特别适用于 Channel Mixing
-    """
-    def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
-        super().__init__()
-        # 正向 Mamba
-        self.mamba_f = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
-        # 反向 Mamba
-        self.mamba_b = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
-
-    def forward(self, x):
-        # x: [B, L, D]
-        y_f = self.mamba_f(x)
-        
-        # Backward pass: 翻转序列 -> Mamba -> 翻转回来
-        x_b = torch.flip(x, dims=[1])
-        y_b = self.mamba_b(x_b)
-        y_b = torch.flip(y_b, dims=[1])
-        
-        # 融合双向特征
-        return y_f + y_b
 
 class EmbLayer(nn.Module):
     def __init__(self, patch_len, patch_step, seq_len, d_model):
@@ -94,10 +69,6 @@ class Emb(nn.Module):
             nn.Linear(128, self.num_experts)
         )
         self.w_noise = nn.Linear(routing_dim, self.num_experts)
-        
-        # 创新集成：使用 BiMambaBlock 处理变量间的全局依赖
-        # 这里处理的是变量维度 V，由于变量无序，使用 BiMamba + d_conv=1 是最佳实践
-        self.variable_mixer = BiMambaBlock(d_model, d_conv=1)
 
     def noisy_top_k_gating(self, x, train, noise_epsilon=1e-2):
         # 提取频域特征
@@ -136,8 +107,4 @@ class Emb(nn.Module):
         # 加权融合
         s_out = (expert_outputs * gates).sum(dim=-2)  # [B, V, d_model]
         
-        # 通过 BiMamba 增强变量间的交互
-        # 输入形状 [B, V, d_model]，Mamba 将在 V 维度上扫描
-        s_out = self.variable_mixer(s_out)
-
         return s_out
