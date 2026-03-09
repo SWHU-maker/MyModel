@@ -155,7 +155,7 @@ class Model(nn.Module):
             x_enc /= stdev
             
         x = x_enc.permute(0, 2, 1) # [B, V, L]
-        x = self.emb(x)            # [B, V, d_model]
+        x, aux_loss = self.emb(x)  # [B, V, d_model]
 
         # 显式调用全局变量交互
         x = self.pre_encoder_mixer(x)
@@ -175,8 +175,8 @@ class Model(nn.Module):
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
-        return dec_out
+        return dec_out, aux_loss
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
-        dec_out = self.forecast(x_enc)
-        return dec_out[:, -self.pred_len:, :]
+        dec_out, aux_loss = self.forecast(x_enc)
+        return dec_out[:, -self.pred_len:, :], aux_loss

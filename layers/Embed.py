@@ -92,12 +92,30 @@ class Emb(nn.Module):
 
         zeros = torch.zeros_like(logits, requires_grad=True)
         gates = zeros.scatter(-1, top_indices, top_k_gates)
-        return gates
+
+        # 负载均衡损失 (Load Balancing Loss)
+        if self.training:
+            # 计算每个专家的平均选择率 f_i
+            # mask: [B, V, num_experts]
+            mask = torch.zeros_like(logits).scatter_(-1, top_indices, 1.0)
+            f = mask.mean(dim=(0, 1))
+            
+            # 计算每个专家的平均门控概率 P_i
+            # probs: [B, V, num_experts]
+            probs = F.softmax(logits, dim=-1)
+            P = probs.mean(dim=(0, 1))
+            
+            # Loss = N * sum(f_i * P_i)
+            loss = self.num_experts * torch.sum(f * P)
+        else:
+            loss = 0.0
+
+        return gates, loss
 
     def forward(self, x):
         # x: [B, V, L]
-        gates = self.noisy_top_k_gating(x, self.training)
-
+        gates, loss = self.noisy_top_k_gating(x, self.training)
+        
         # 获取所有尺度的表征
         expert_outputs = [layer(x) for layer in self.EmbLayers]
         expert_outputs = torch.stack(expert_outputs, dim=-2) # [B, V, Experts, d_model]
@@ -107,4 +125,4 @@ class Emb(nn.Module):
         # 加权融合
         s_out = (expert_outputs * gates).sum(dim=-2)  # [B, V, d_model]
         
-        return s_out
+        return s_out, loss

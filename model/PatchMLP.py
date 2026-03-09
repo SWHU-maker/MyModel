@@ -74,7 +74,7 @@ class Model(nn.Module):
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
             x_enc /= stdev
         x = x_enc.permute(0, 2, 1)
-        x = self.emb(x)
+        x, aux_loss = self.emb(x)
 
         seasonal_init, trend_init = self.decompsition(x)
 
@@ -91,11 +91,11 @@ class Model(nn.Module):
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
-        return dec_out
+        return dec_out, aux_loss
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
-        dec_out = self.forecast(x_enc)
-        return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        dec_out, aux_loss = self.forecast(x_enc)
+        return dec_out[:, -self.pred_len:, :], aux_loss
 
 
 class Encoder(nn.Module):
