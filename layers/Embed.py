@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class EmbLayer(nn.Module):
-    def __init__(self, patch_len, patch_step, seq_len, d_model, dropout=0.0):
+    def __init__(self, patch_len, patch_step, seq_len, d_model):
         super().__init__()
         self.patch_len = patch_len
         self.patch_step = patch_step
@@ -21,14 +21,12 @@ class EmbLayer(nn.Module):
         
         self.ff = nn.Sequential(
             nn.Linear(patch_len, self.d_model_inner),
-            nn.GELU(),
-            nn.Dropout(dropout) # 【新增】应用 dropout
+            nn.GELU()  # 引入 GELU 激活增强特征非线性
         )
         self.flatten = nn.Flatten(start_dim=-2)
 
         self.ff_1 = nn.Sequential(
             nn.Linear(self.d_model_inner * self.patch_num, d_model),
-            nn.Dropout(dropout) # 【新增】应用 dropout
         )
 
     def forward(self, x):
@@ -48,17 +46,16 @@ class EmbLayer(nn.Module):
 
 
 class Emb(nn.Module):
-    def __init__(self, seq_len, d_model, patch_len=[96, 48, 24, 12, 6, 3], k=4, noisy_gating=True, dropout=0.0):
+    def __init__(self, seq_len, d_model, patch_len=[96, 48, 24, 12, 6, 3], k=4, noisy_gating=True):
         super().__init__()
         patch_step = patch_len
         self.num_experts = len(patch_len)
         self.k = min(k, self.num_experts) 
         self.noisy_gating = noisy_gating  
-        self.dropout = nn.Dropout(dropout) # 【新增】全局表征 dropout
 
         # 实例化专家分支
         self.EmbLayers = nn.ModuleList([
-            EmbLayer(patch_len[i], patch_step[i] // 2, seq_len, d_model, dropout) # 【修改】传入 dropout
+            EmbLayer(patch_len[i], patch_step[i] // 2, seq_len, d_model) 
             for i in range(self.num_experts)
         ])
 
@@ -69,7 +66,6 @@ class Emb(nn.Module):
         self.w_gate = nn.Sequential(
             nn.Linear(routing_dim, 128),
             nn.GELU(),
-            nn.Dropout(dropout), # 【新增】路由网络中引入 dropout 防过拟合
             nn.Linear(128, self.num_experts)
         )
         self.w_noise = nn.Linear(routing_dim, self.num_experts)
@@ -111,4 +107,4 @@ class Emb(nn.Module):
         # 加权融合
         s_out = (expert_outputs * gates).sum(dim=-2)  # [B, V, d_model]
         
-        return self.dropout(s_out) # 【修改】输出经过 dropout
+        return s_out

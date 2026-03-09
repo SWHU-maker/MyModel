@@ -13,7 +13,7 @@ class BiMambaBlock(nn.Module):
     1. 双向扫描：消除 Channel 顺序偏差
     2. 通道注意力：动态融合正向和反向特征，不再是简单的相加
     """
-    def __init__(self, d_model, d_state=16, d_conv=4, expand=2, dropout=0.0):
+    def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
         super().__init__()
         # Forward
         self.mamba_f = Mamba(d_model=d_model, d_state=d_state, d_conv=d_conv, expand=expand)
@@ -26,7 +26,6 @@ class BiMambaBlock(nn.Module):
             nn.Sigmoid()
         )
         self.out_proj = nn.Linear(d_model, d_model)
-        self.dropout = nn.Dropout(dropout) # 【新增】应用 dropout
 
     def forward(self, x):
         # x: [B, L, D]
@@ -45,7 +44,7 @@ class BiMambaBlock(nn.Module):
         # 加权融合：z * y_f + (1-z) * y_b
         y = z * y_f + (1 - z) * y_b
         
-        return self.dropout(self.out_proj(y)) # 【修改】输出时经过 dropout
+        return self.out_proj(y)
 
 
 class moving_avg(nn.Module):
@@ -74,11 +73,10 @@ class series_decomp(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, d_model, enc_in, dropout=0.0):
+    def __init__(self, d_model, enc_in):
         super().__init__()
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
-        self.dropout = nn.Dropout(dropout) # 【新增】应用 dropout
 
         # 1. Channel Mixing (变量间交互)
         # 使用 Adaptive BiMamba，引入门控机制提升融合效果
@@ -87,7 +85,6 @@ class Encoder(nn.Module):
             d_state=16,      
             d_conv=1,        
             expand=2,        
-            dropout=dropout  # 【修改】向下传递 dropout
         )
 
         # 2. Time Mixing (时间步交互)
@@ -103,7 +100,7 @@ class Encoder(nn.Module):
         
         # Channel Mixing
         y_0 = self.channel_mixer(x)
-        y_0 = self.dropout(y_0) + x # 【修改】残差连接前做 dropout
+        y_0 = y_0 + x
         y_0 = self.norm1(y_0)
         
         # Time Mixing
@@ -111,8 +108,8 @@ class Encoder(nn.Module):
         y_1 = self.time_mixer(y_1)
         y_1 = y_1.permute(0, 2, 1)
         
-        y_2 = self.dropout(y_1 * y_0) + x # 【修改】残差连接前做 dropout
-        y_2 = self.norm2(y_2) # 【修复】原来重复使用了 self.norm1，这里修正为正确的 self.norm2
+        y_2 = y_1 * y_0 + x
+        y_2 = self.norm1(y_2)
 
         return y_2
 
@@ -124,14 +121,11 @@ class Model(nn.Module):
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
         self.use_norm = configs.use_norm
-        
-        # 【新增】智能获取运行脚本中名为 dropout 或 drop 的参数，若没有配置则默认给 0.1
-        self.dropout = getattr(configs, 'dropout', getattr(configs, 'drop', 0.1))
 
         self.decompsition = series_decomp(13)
         
         # Embedding
-        self.emb = Emb(configs.seq_len, configs.d_model, dropout=self.dropout) # 【修改】传入 dropout
+        self.emb = Emb(configs.seq_len, configs.d_model)
         
         # 全局变量交互层 (Pre-Encoder)
         # 同样使用 Adaptive BiMamba
@@ -139,16 +133,15 @@ class Model(nn.Module):
             d_model=configs.d_model,
             d_state=16,
             d_conv=1,
-            expand=2,
-            dropout=self.dropout # 【修改】传入 dropout
+            expand=2
         )
         
         self.seasonal_layers = nn.ModuleList([
-            Encoder(configs.d_model, configs.enc_in, dropout=self.dropout) # 【修改】传入 dropout
+            Encoder(configs.d_model, configs.enc_in)
             for i in range(configs.e_layers)
         ])
         self.trend_layers = nn.ModuleList([
-            Encoder(configs.d_model, configs.enc_in, dropout=self.dropout) # 【修改】传入 dropout
+            Encoder(configs.d_model, configs.enc_in)
             for i in range(configs.e_layers)
         ])
 
