@@ -126,3 +126,29 @@ class Emb(nn.Module):
         s_out = (expert_outputs * gates).sum(dim=-2)  # [B, V, d_model]
         
         return s_out, loss
+
+class MultiScaleEmb(nn.Module):
+    def __init__(self, seq_len, d_model, scales=[1, 2], patch_len=[96, 48, 24, 12, 6, 3], k=4, noisy_gating=True):
+        super().__init__()
+        self.scales = scales
+        self.embs = nn.ModuleList([
+            Emb(seq_len // s, d_model, patch_len, k, noisy_gating) 
+            for s in scales
+        ])
+        
+    def forward(self, x):
+        # x: [B, V, L]
+        outs = []
+        losses = []
+        for i, scale in enumerate(self.scales):
+            if scale == 1:
+                x_s = x
+            else:
+                # Downsample
+                x_s = F.avg_pool1d(x, kernel_size=scale, stride=scale)
+            
+            out, loss = self.embs[i](x_s)
+            outs.append(out)
+            losses.append(loss)
+            
+        return outs, losses

@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from layers.Embed import Emb
+from layers.Embed import Emb, MultiScaleEmb
 from mamba_ssm import Mamba
 
 # ==========================================
@@ -124,8 +124,10 @@ class Model(nn.Module):
 
         self.decompsition = series_decomp(13)
         
-        # Embedding
-        self.emb = Emb(configs.seq_len, configs.d_model)
+        # Embedding - Modified for TimeMixer++ Multi-scale
+        # 借鉴 TimeMixer++ 的多尺度混合机制
+        self.scales = [1, 2] # Default scales
+        self.emb = MultiScaleEmb(configs.seq_len, configs.d_model, scales=self.scales)
         
         # 全局变量交互层 (Pre-Encoder)
         # 同样使用 Adaptive BiMamba
@@ -145,7 +147,11 @@ class Model(nn.Module):
             for i in range(configs.e_layers)
         ])
 
-        self.projector = nn.Linear(configs.d_model, configs.pred_len, bias=True)
+        # Projector for each scale
+        self.projectors = nn.ModuleList([
+            nn.Linear(configs.d_model, configs.pred_len, bias=True)
+            for _ in self.scales
+        ])
 
     def forecast(self, x_enc):
         if self.use_norm:
@@ -154,28 +160,45 @@ class Model(nn.Module):
             stdev = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
             x_enc /= stdev
             
-        x = x_enc.permute(0, 2, 1) # [B, V, L]
-        x, aux_loss = self.emb(x)  # [B, V, d_model]
+        x_in = x_enc.permute(0, 2, 1) # [B, V, L]
+        
+        # Multi-scale Embedding
+        emb_outs, losses = self.emb(x_in)
+        
+        dec_out_sum = 0
+        total_aux_loss = 0
+        
+        for i, (x, loss) in enumerate(zip(emb_outs, losses)):
+            total_aux_loss += loss
+            
+            # 显式调用全局变量交互
+            x = self.pre_encoder_mixer(x)
 
-        # 显式调用全局变量交互
-        x = self.pre_encoder_mixer(x)
+            seasonal_init, trend_init = self.decompsition(x)
 
-        seasonal_init, trend_init = self.decompsition(x)
+            for mod in self.seasonal_layers:
+                seasonal_init = mod(seasonal_init)
+            for mod in self.trend_layers:
+                trend_init = mod(trend_init)
 
-        for mod in self.seasonal_layers:
-            seasonal_init = mod(seasonal_init)
-        for mod in self.trend_layers:
-            trend_init = mod(trend_init)
-
-        x = seasonal_init + trend_init
-        dec_out = self.projector(x)
-        dec_out = dec_out.permute(0, 2, 1)
+            x = seasonal_init + trend_init
+            
+            # Project using scale-specific projector
+            out = self.projectors[i](x) # [B, V, pred_len]
+            out = out.permute(0, 2, 1) # [B, pred_len, V]
+            
+            if isinstance(dec_out_sum, int):
+                dec_out_sum = out
+            else:
+                dec_out_sum = dec_out_sum + out
+        
+        dec_out = dec_out_sum
         
         if self.use_norm:
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
-        return dec_out, aux_loss
+        return dec_out, total_aux_loss
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         dec_out, aux_loss = self.forecast(x_enc)
