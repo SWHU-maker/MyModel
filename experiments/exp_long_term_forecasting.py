@@ -141,7 +141,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         f_dim = -1 if self.args.features == 'MS' else 0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                        loss = criterion(outputs, batch_y) + aux_loss
+                        loss = criterion(outputs, batch_y) + self.args.moe_loss_weight * aux_loss
                         train_loss.append(loss.item())
                 else:
                     if self.args.output_attention:
@@ -152,7 +152,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss = criterion(outputs, batch_y) + aux_loss
+                    loss = criterion(outputs, batch_y) + self.args.moe_loss_weight * aux_loss
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -331,7 +331,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         with open("result_all_experiments.txt", 'a') as f_all:
             f_all.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " \n")
             f_all.write(f"Setting: {setting}\n")
-            f_all.write(f"Parameters: Dropout: {self.args.dropout}, BatchSize: {self.args.batch_size}\n")
+            f_all.write(f"Parameters: Dropout: {self.args.dropout}, BatchSize: {self.args.batch_size}, MoE_Loss_Weight: {self.args.moe_loss_weight}\n")
             f_all.write(f"MSE: {mse:.6f}, MAE: {mae:.6f}, RMSE: {rmse:.6f}\n")
             f_all.write("-" * 50 + "\n\n")
 
@@ -343,6 +343,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             f_detail.write(f"Arguments: {str(self.args)}\n")
             f_detail.write(f"Dropout: {self.args.dropout}\n")     # 新增
             f_detail.write(f"Batch Size: {self.args.batch_size}\n") # 新增
+            f_detail.write(f"MoE Loss Weight: {self.args.moe_loss_weight}\n") # 新增
             f_detail.write("-" * 50 + "\n")
             f_detail.write(f"MSE:  {mse}\n")
             f_detail.write(f"MAE:  {mae}\n")
