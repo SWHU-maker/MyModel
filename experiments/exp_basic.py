@@ -1,6 +1,8 @@
 import os
 import torch
-from model import PatchMamba
+from model import PatchMambaV0_1
+from model import PatchMambaV1_0
+from model import PatchMambaV1_1
 
 
 
@@ -8,8 +10,9 @@ class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
         self.model_dict = {
-            'PatchMamba': PatchMamba,
-
+            'PatchMambaV0_1': PatchMambaV0_1,
+            'PatchMambaV1_0': PatchMambaV1_0,
+            'PatchMambaV1_1': PatchMambaV1_1,
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)

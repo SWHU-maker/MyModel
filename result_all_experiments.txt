@@ -2772,3 +2772,27 @@ Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
 MSE: 0.341896, MAE: 0.343945, RMSE: 0.584719
 --------------------------------------------------
 
+2026-03-11 15:25:43 
+Setting: PatchMambaV1_0_weather_96_96_bs64_drop0_moe1_PatchMambaV1_0_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1509_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.155969, MAE: 0.204934, RMSE: 0.394929
+--------------------------------------------------
+
+2026-03-11 15:38:57 
+Setting: PatchMambaV1_0_weather_96_192_bs64_drop0_moe1_PatchMambaV1_0_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1525_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.204270, MAE: 0.250883, RMSE: 0.451963
+--------------------------------------------------
+
+2026-03-11 15:50:32 
+Setting: PatchMambaV1_0_weather_96_336_bs64_drop0_moe1_PatchMambaV1_0_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1539_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.262276, MAE: 0.292228, RMSE: 0.512129
+--------------------------------------------------
+
+2026-03-11 16:02:00 
+Setting: PatchMambaV1_0_weather_96_720_bs64_drop0_moe1_PatchMambaV1_0_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1550_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.341880, MAE: 0.343927, RMSE: 0.584705
+--------------------------------------------------
+

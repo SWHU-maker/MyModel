@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=2
 seq_len=96
-model_name=PatchMamba
+model_name=PatchMambaV1_0
 root_path_name=./datasets/
 data_path_name=weather.csv
 model_id_name=weather
@@ -31,7 +31,7 @@ do
           --moe_loss_weight $moe_w \
           --root_path $root_path_name \
           --data_path $data_path_name \
-          --model_id $model_id_name'_'$seq_len'_'$pred_len'_bs'$bs'_drop'$drop'_moe'$moe_w \
+          --model_id $model_name'_'$model_id_name'_'$seq_len'_'$pred_len'_bs'$bs'_drop'$drop'_moe'$moe_w \
           --model $model_name \
           --data $data_name \
           --features M \
