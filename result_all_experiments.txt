@@ -2532,3 +2532,243 @@ Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
 MSE: 0.341896, MAE: 0.343945, RMSE: 0.584719
 --------------------------------------------------
 
+2026-03-10 21:55:30 
+Setting: weather_96_96_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2138_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.155969, MAE: 0.204934, RMSE: 0.394929
+--------------------------------------------------
+
+2026-03-10 22:08:21 
+Setting: weather_96_96_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2158_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.156944, MAE: 0.204216, RMSE: 0.396161
+--------------------------------------------------
+
+2026-03-10 22:36:20 
+Setting: weather_96_96_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2233_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.159958, MAE: 0.206508, RMSE: 0.399948
+--------------------------------------------------
+
+2026-03-10 22:39:13 
+Setting: weather_96_192_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2236_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.207710, MAE: 0.250419, RMSE: 0.455752
+--------------------------------------------------
+
+2026-03-10 22:42:14 
+Setting: weather_96_336_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2239_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.265379, MAE: 0.294324, RMSE: 0.515149
+--------------------------------------------------
+
+2026-03-10 22:44:41 
+Setting: weather_96_720_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2242_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.349873, MAE: 0.346266, RMSE: 0.591500
+--------------------------------------------------
+
+2026-03-10 22:47:46 
+Setting: weather_96_96_bs64_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2244_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.1
+MSE: 0.159958, MAE: 0.206508, RMSE: 0.399948
+--------------------------------------------------
+
+2026-03-10 22:50:49 
+Setting: weather_96_192_bs64_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2247_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.1
+MSE: 0.207710, MAE: 0.250419, RMSE: 0.455752
+--------------------------------------------------
+
+2026-03-10 22:53:37 
+Setting: weather_96_336_bs64_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2250_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.1
+MSE: 0.265379, MAE: 0.294324, RMSE: 0.515149
+--------------------------------------------------
+
+2026-03-10 22:55:55 
+Setting: weather_96_720_bs64_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2253_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.1
+MSE: 0.349873, MAE: 0.346266, RMSE: 0.591500
+--------------------------------------------------
+
+2026-03-10 22:58:44 
+Setting: weather_96_96_bs64_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2256_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.05
+MSE: 0.159958, MAE: 0.206508, RMSE: 0.399948
+--------------------------------------------------
+
+2026-03-10 23:01:43 
+Setting: weather_96_192_bs64_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2258_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.05
+MSE: 0.207710, MAE: 0.250419, RMSE: 0.455752
+--------------------------------------------------
+
+2026-03-10 23:04:36 
+Setting: weather_96_336_bs64_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2301_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.05
+MSE: 0.265379, MAE: 0.294324, RMSE: 0.515149
+--------------------------------------------------
+
+2026-03-10 23:07:06 
+Setting: weather_96_720_bs64_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2304_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.05
+MSE: 0.349873, MAE: 0.346266, RMSE: 0.591500
+--------------------------------------------------
+
+2026-03-10 23:09:56 
+Setting: weather_96_96_bs64_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2307_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.01
+MSE: 0.159959, MAE: 0.206508, RMSE: 0.399948
+--------------------------------------------------
+
+2026-03-10 23:12:51 
+Setting: weather_96_192_bs64_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2310_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.01
+MSE: 0.207710, MAE: 0.250419, RMSE: 0.455752
+--------------------------------------------------
+
+2026-03-10 23:15:56 
+Setting: weather_96_336_bs64_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2312_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.01
+MSE: 0.265379, MAE: 0.294324, RMSE: 0.515149
+--------------------------------------------------
+
+2026-03-10 23:18:16 
+Setting: weather_96_720_bs64_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0310_2316_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 0.01
+MSE: 0.349873, MAE: 0.346266, RMSE: 0.591500
+--------------------------------------------------
+
+2026-03-10 23:22:29 
+Setting: weather_96_96_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2318_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.161513, MAE: 0.207441, RMSE: 0.401887
+--------------------------------------------------
+
+2026-03-10 23:25:54 
+Setting: weather_96_192_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2322_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.210241, MAE: 0.252214, RMSE: 0.458520
+--------------------------------------------------
+
+2026-03-10 23:28:33 
+Setting: weather_96_336_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2326_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.267494, MAE: 0.292591, RMSE: 0.517198
+--------------------------------------------------
+
+2026-03-10 23:32:08 
+Setting: weather_96_720_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2328_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.348474, MAE: 0.348291, RMSE: 0.590317
+--------------------------------------------------
+
+2026-03-10 23:36:36 
+Setting: weather_96_96_bs128_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2332_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.1
+MSE: 0.161513, MAE: 0.207441, RMSE: 0.401887
+--------------------------------------------------
+
+2026-03-10 23:40:15 
+Setting: weather_96_192_bs128_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2336_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.1
+MSE: 0.210241, MAE: 0.252214, RMSE: 0.458520
+--------------------------------------------------
+
+2026-03-10 23:43:00 
+Setting: weather_96_336_bs128_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2340_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.1
+MSE: 0.267494, MAE: 0.292591, RMSE: 0.517198
+--------------------------------------------------
+
+2026-03-10 23:46:37 
+Setting: weather_96_720_bs128_drop0_moe0.1_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2343_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.1
+MSE: 0.348474, MAE: 0.348291, RMSE: 0.590317
+--------------------------------------------------
+
+2026-03-10 23:50:52 
+Setting: weather_96_96_bs128_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2346_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.05
+MSE: 0.161513, MAE: 0.207441, RMSE: 0.401887
+--------------------------------------------------
+
+2026-03-10 23:54:17 
+Setting: weather_96_192_bs128_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2350_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.05
+MSE: 0.210241, MAE: 0.252214, RMSE: 0.458520
+--------------------------------------------------
+
+2026-03-10 23:56:52 
+Setting: weather_96_336_bs128_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2354_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.05
+MSE: 0.267494, MAE: 0.292591, RMSE: 0.517198
+--------------------------------------------------
+
+2026-03-11 00:00:20 
+Setting: weather_96_720_bs128_drop0_moe0.05_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0310_2356_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.05
+MSE: 0.348474, MAE: 0.348291, RMSE: 0.590317
+--------------------------------------------------
+
+2026-03-11 00:04:27 
+Setting: weather_96_96_bs128_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_0000_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.01
+MSE: 0.161513, MAE: 0.207441, RMSE: 0.401887
+--------------------------------------------------
+
+2026-03-11 00:07:57 
+Setting: weather_96_192_bs128_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_0004_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.01
+MSE: 0.210241, MAE: 0.252214, RMSE: 0.458520
+--------------------------------------------------
+
+2026-03-11 00:10:34 
+Setting: weather_96_336_bs128_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_0008_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.01
+MSE: 0.267494, MAE: 0.292591, RMSE: 0.517198
+--------------------------------------------------
+
+2026-03-11 00:14:11 
+Setting: weather_96_720_bs128_drop0_moe0.01_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_0010_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 0.01
+MSE: 0.348474, MAE: 0.348291, RMSE: 0.590317
+--------------------------------------------------
+
+2026-03-11 13:26:07 
+Setting: weather_96_96_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_1310_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.157158, MAE: 0.206195, RMSE: 0.396431
+--------------------------------------------------
+
+2026-03-11 13:44:46 
+Setting: weather_96_192_bs128_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs128_0311_1326_0
+Parameters: Dropout: 0.0, BatchSize: 128, MoE_Loss_Weight: 1.0
+MSE: 0.204354, MAE: 0.250337, RMSE: 0.452056
+--------------------------------------------------
+
+2026-03-11 14:02:30 
+Setting: weather_96_96_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll96_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1346_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.155968, MAE: 0.204934, RMSE: 0.394928
+--------------------------------------------------
+
+2026-03-11 14:16:09 
+Setting: weather_96_192_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll192_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1402_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.204269, MAE: 0.250884, RMSE: 0.451961
+--------------------------------------------------
+
+2026-03-11 14:27:46 
+Setting: weather_96_336_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll336_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1416_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.262276, MAE: 0.292228, RMSE: 0.512129
+--------------------------------------------------
+
+2026-03-11 14:39:21 
+Setting: weather_96_720_bs64_drop0_moe1_PatchMamba_custom_M_ft96_sl48_ll720_pl1024_dm8_nh1_el1_dl2048_df1_fctimeF_ebTrue_dttest_dp0.0_bs64_0311_1427_0
+Parameters: Dropout: 0.0, BatchSize: 64, MoE_Loss_Weight: 1.0
+MSE: 0.341896, MAE: 0.343945, RMSE: 0.584719
+--------------------------------------------------
+

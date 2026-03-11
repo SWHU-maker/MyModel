@@ -9,7 +9,7 @@ random_seed=2024
 
 # 超参数搜索空间
 pred_lens="96 192 336 720"
-batch_sizes="64 "
+batch_sizes="64"
 dropouts="0 "
 moe_weights="1"
 
